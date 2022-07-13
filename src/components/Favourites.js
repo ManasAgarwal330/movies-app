@@ -14,6 +14,14 @@ export default class Favourites extends Component {
   }
 
   componentDidMount() {
+    let moviesArr = JSON.parse(localStorage.getItem("movies") || "[]");
+    this.setState({
+      movies: [...moviesArr],
+    });
+    this.handleGenre();
+  }
+
+  handleGenre = () => {
     let genreObj = {
       28: "Action",
       12: "Adventure",
@@ -46,9 +54,8 @@ export default class Favourites extends Component {
     }
     genreArr.unshift("All Genres");
     this.setState({
-      movies: [...moviesArr],
-      genres: [...genreArr],
-    });
+      genres:[...genreArr],
+    })
   }
 
   handleClick = (genre) => {
@@ -76,6 +83,7 @@ export default class Favourites extends Component {
       movies: [...temp],
     });
     localStorage.setItem("movies", JSON.stringify(temp));
+    this.handleGenre();
   };
 
   render() {

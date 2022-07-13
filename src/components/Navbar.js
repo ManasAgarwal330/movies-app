@@ -16,7 +16,7 @@ export default class Navbar extends Component {
           marginBottom:"2rem"
         }}
       >
-        <Link to="/">
+        <Link to="/index">
         <button type="button" class="btn btn-primary" style={{height:"4rem",width:"8rem"}}>Movies</button>
         </Link>
         <Link to="/favourites">

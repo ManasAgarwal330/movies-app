@@ -9,20 +9,21 @@ export default class Movies extends Component {
       parr: [1],
       currPage: 1,
       favourites: [],
+      searchText: "",
     };
   }
 
   async componentDidMount() {
     let page = this.state.currPage;
     let fav = JSON.parse(localStorage.getItem("movies") || "[]");
-    fav = fav.map(obj => obj.id);
+    fav = fav.map((obj) => obj.id);
     let moviesArr = await axios.get(
       `https://api.themoviedb.org/3/trending/all/day?api_key=718d46934f6bf4656bfa3810ff61cb8e&page=${page}`
     );
     moviesArr = moviesArr.data.results;
     this.setState({
       movies: [...moviesArr],
-      favourites:[...fav]
+      favourites: [...fav],
     });
   }
 
@@ -72,7 +73,7 @@ export default class Movies extends Component {
     );
   };
 
-  handleFav = (id,movieObj) => {
+  handleFav = (id, movieObj) => {
     let temp = [];
     let localStoragetemp = JSON.parse(localStorage.getItem("movies") || "[]");
     if (this.state.favourites.includes(id)) {
@@ -91,11 +92,56 @@ export default class Movies extends Component {
       localStorage.setItem("movies", JSON.stringify(localStoragetemp))
     );
   };
+  handleSearch = async (e) => {
+    if (e.target.value === "") {
+      this.changeMovies();
+      this.setState({
+        searchText: "",
+      });
+    } else {
+      let moviesArr = await axios.get(
+        `https://api.themoviedb.org/3/search/movie?api_key=718d46934f6bf4656bfa3810ff61cb8e&query=${e.target.value}`
+      );
+      moviesArr = moviesArr.data.results;
+
+      this.setState({
+        movies: [...moviesArr],
+        searchText: e.target.value,
+      });
+    }
+  };
 
   render() {
     let movieArr = this.state.movies;
     return (
       <>
+        <div
+          style={{
+            display: "flex",
+            paddingTop: "1rem",
+            paddingBottom: "1rem",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
+          }}
+        >
+          <h2>Trending</h2>
+          <input
+            type="text"
+            className="form-control"
+            aria-label="Sizing example input"
+            aria-describedby="inputGroup-sizing-default"
+            style={{
+              backgroundColor: "lightgray",
+              height: "3rem",
+              width: "18rem",
+              position: "absolute",
+              right: "4rem",
+            }}
+            placeholder="Search Movie"
+            onChange={(e) => this.handleSearch(e)}
+          />
+        </div>
         {movieArr.length === 0 ? (
           <div
             class="spinner-border text-primary"
@@ -106,7 +152,6 @@ export default class Movies extends Component {
           </div>
         ) : (
           <>
-            <h2 style={{ textAlign: "center", marginTop: "1rem" }}>Trending</h2>
             <div
               className="movie-card"
               style={{
@@ -140,7 +185,7 @@ export default class Movies extends Component {
                       alignSelf: "center",
                       cursor: "pointer",
                     }}
-                    onClick={() => this.handleFav(movieObj.id,movieObj)}
+                    onClick={() => this.handleFav(movieObj.id, movieObj)}
                   >
                     {this.state.favourites.includes(movieObj.id)
                       ? "Remove From Favourites"
@@ -149,41 +194,45 @@ export default class Movies extends Component {
                 </div>
               ))}
             </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "1rem",
-              }}
-            >
-              <nav
-                aria-label="Page navigation example"
-                style={{ cursor: "pointer" }}
+            {this.state.searchText !== "" ? (
+              <></>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: "1rem",
+                }}
               >
-                <ul class="pagination">
-                  <li class="page-item">
-                    <a class="page-link" onClick={this.handlePrev}>
-                      Previous
-                    </a>
-                  </li>
-                  {this.state.parr.map((value) => (
+                <nav
+                  aria-label="Page navigation example"
+                  style={{ cursor: "pointer" }}
+                >
+                  <ul class="pagination">
                     <li class="page-item">
-                      <a
-                        class="page-link"
-                        onClick={() => this.handleClick(value)}
-                      >
-                        {value}
+                      <a class="page-link" onClick={this.handlePrev}>
+                        Previous
                       </a>
                     </li>
-                  ))}
-                  <li class="page-item">
-                    <a class="page-link" onClick={this.handleNext}>
-                      Next
-                    </a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
+                    {this.state.parr.map((value) => (
+                      <li class="page-item">
+                        <a
+                          class="page-link"
+                          onClick={() => this.handleClick(value)}
+                        >
+                          {value}
+                        </a>
+                      </li>
+                    ))}
+                    <li class="page-item">
+                      <a class="page-link" onClick={this.handleNext}>
+                        Next
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            )}
           </>
         )}
       </>
